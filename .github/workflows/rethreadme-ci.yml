@@ -71,7 +71,7 @@ jobs:
   Thread_test_lsan:
     name: Thread_test_lsan
     needs: Build_thread_test_gcc_debug_lsan
-    uses: ./.github/workflows/run_app.yml
+    uses: ./.github/workflows/run.yml
     with:
       artifacts_name: Build_thread_test_gcc_debug_lsan-${{ github.sha }}
       app: ./test
@@ -80,7 +80,7 @@ jobs:
   Thread_test_asan:
     name: Thread_test_asan
     needs: Build_thread_test_gcc_debug_asan
-    uses: ./.github/workflows/run_app.yml
+    uses: ./.github/workflows/run.yml
     with:
       artifacts_name: Build_thread_test_gcc_debug_asan-${{ github.sha }}
       app: ./test
@@ -89,7 +89,7 @@ jobs:
   Thread_test_tsan:
     name: Thread_test_tsan
     needs: Build_thread_test_gcc_debug_tsan
-    uses: ./.github/workflows/run_app.yml
+    uses: ./.github/workflows/run.yml
     with:
       artifacts_name: Build_thread_test_gcc_debug_tsan-${{ github.sha }}
       app: ./test
@@ -98,7 +98,7 @@ jobs:
   Thread_test_ubsan:
     name: Thread_test_ubsan
     needs: Build_thread_test_gcc_debug_ubsan
-    uses: ./.github/workflows/run_app.yml
+    uses: ./.github/workflows/run.yml
     with:
       artifacts_name: Build_thread_test_gcc_debug_ubsan-${{ github.sha }}
       app: ./test
