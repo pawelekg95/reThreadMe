@@ -1,0 +1,64 @@
+name: Prepare_environment
+on:
+  workflow_call:
+    inputs:
+      image:
+        required: true
+        type: string
+
+jobs:
+  Build_image:
+    runs-on: ubuntu-20.04
+    environment: docker
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Calculate image file hash for check
+        run: |
+          ls ${{ github.workspace }}
+          DOCKERFILE_HASH=$(tools/sha256.py -f .github/${{ inputs.image }}.dockerfile)
+          echo "DOCKERFILE_HASH=$DOCKERFILE_HASH" >> $GITHUB_ENV
+
+      - name: Check if image exists
+        env:
+          DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          docker login -u ${{ env.DOCKER_LOGIN }} -p ${{ env.DOCKER_PASSWORD }}
+          result=0
+          docker manifest inspect pawelekg95/${{ inputs.image }}:${{ env.DOCKERFILE_HASH}} > /dev/null || result=$?
+          echo "NO_IMAGE=$result" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v3
+        if: ${{ env.NO_IMAGE == 1 }}
+
+      - name: Log in to Docker Hub
+        if: ${{ env.NO_IMAGE == 1 }}
+        env:
+          DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER_LOGIN }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        if: ${{ env.NO_IMAGE == 1 }}
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: pawelekg95/${{ inputs.image }}:${{ env.DOCKERFILE_HASH}}
+
+      - name: Build and push Docker image
+        if: ${{ env.NO_IMAGE == 1 }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: .github/${{ inputs.image }}.dockerfile
+          push: true
+          tags: |
+            pawelekg95/${{ inputs.image }}:${{ env.DOCKERFILE_HASH}}
+            pawelekg95/${{ inputs.image }}:latest

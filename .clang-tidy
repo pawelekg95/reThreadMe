@@ -1,0 +1,83 @@
+---
+Checks:                '*,
+                       -altera-*,
+                       -bugprone-macro-parentheses,
+                       -bugprone-easily-swappable-parameters,
+                       -cert-err58-cpp,
+                       -fuchsia-*,
+                       -llvmlibc-*,
+                       -*-magic-numbers,
+                       -modernize-use-nodiscard,
+                       -modernize-use-trailing-return-type,
+                       -readability-identifier-length,
+                       -readability-function-cognitive-complexity'
+WarningsAsErrors:      '*'
+HeaderFilterRegex:     ''
+AnalyzeTemporaryDtors: false
+FormatStyle:           file
+CheckOptions:
+  - key:               bugprone-dangling-handle.HandleClasses
+    value:             'std::basic_string_view;std::experimental::basic_string_view'
+  - key:               cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value:             '1'
+  - key:               google-readability-braces-around-statements.ShortStatementLines
+    value:             '2'
+  - key:               hicpp-braces-around-statements.ShortStatementLines
+    value:             '2'
+  - key:               misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:             '1'
+  - key:               readability-braces-around-statements.ShortStatementLines
+    value:             '2'
+  - key:               readability-identifier-naming.AbstractClassCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.AbstractClassPrefix
+    value:             'I'
+  - key:               readability-identifier-naming.ClassCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.ClassMemberCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.ClassMemberPrefix
+    value:             'm_'
+  - key:               readability-identifier-naming.EnumCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.EnumConstantCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.EnumConstantPrefix
+    value:             'e'
+  - key:               readability-identifier-naming.FunctionCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.NamespaceCase
+    value:             'lower_case'
+  - key:               readability-identifier-naming.ParameterCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.PrivateMemberCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.PrivateMemberPrefix
+    value:             'm_'
+  - key:               readability-identifier-naming.ProtectedMemberCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.ProtectedMemberPrefix
+    value:             'm_'
+  - key:               readability-identifier-naming.PublicMemberCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.TemplateParameterCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.TypeAliasCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.TypedefCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.UnionCase
+    value:             'CamelCase'
+  - key:               readability-identifier-naming.ValueTemplateParameterCase
+    value:             'camelBack'
+  - key:               readability-identifier-naming.VariableCase
+    value:             'camelBack'
+  - key:               readability-implicit-bool-conversion.AllowIntegerConditions
+    value:             '1'
+  - key:               readability-implicit-bool-conversion.AllowPointerConditions
+    value:             '1'
+  - key:               readability-inconsistent-declaration-parameter-name.Strict
+    value:             '1'
+
+
+...

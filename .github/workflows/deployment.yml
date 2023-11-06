@@ -1,0 +1,44 @@
+name: Build_documentation_and_deploy
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-20.04
+    environment: docker
+    env:
+      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    container:
+      image: pawelekg95/rethreadme:latest
+      credentials:
+        username: ${{ env.DOCKER_LOGIN }}
+        password: ${{ env.DOCKER_PASSWORD }}
+    steps:
+      - name: Wait for image
+        uses: lewagon/wait-on-check-action@master
+        with:
+          ref: ${{ github.ref }}
+          check-name: ReThreadMe_docker / Build_image
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+
+      - uses: actions/checkout@v3
+      - name: Build doxygen
+        run: |
+          BUILD_DIR="genixx-doxygen-${{ github.sha }}"
+          rm -rf "${BUILD_DIR}"
+          mkdir "${BUILD_DIR}"
+          cd "${BUILD_DIR}"
+          cmake .. --preset thread_test_gcc_debug
+          make doxygen
+
+      - name: Deploy documentation
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: genixx-doxygen-${{ github.sha }}/docs # The folder the action should deploy.

@@ -1,0 +1,8 @@
+{
+    "build": { "dockerfile": "../.github/rethreadme.dockerfile" },
+    "customizations": {
+        "vscode": {
+          "extensions": ["twxs.cmake", "ms-vscode.cmake-tools", "ms-vscode.cpptools-extension-pack", "ms-azuretools.vscode-docker"]
+        }
+      }
+}

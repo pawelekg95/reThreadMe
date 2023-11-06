@@ -1,0 +1,39 @@
+name: Build_app
+on:
+  workflow_call:
+    inputs:
+      preset:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+
+jobs:
+  Build_app:
+    runs-on: ubuntu-20.04
+    environment: docker
+    env:
+      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    container:
+      image: pawelekg95/rethreadme:latest
+      credentials:
+        username: ${{ env.DOCKER_LOGIN }}
+        password: ${{ env.DOCKER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build test application
+        run: |
+          BUILD_DIR="${{ inputs.app }}-${{ github.sha }}"
+          rm -rf "${BUILD_DIR}"
+          mkdir "${BUILD_DIR}"
+          cd "${BUILD_DIR}"
+          cmake .. --preset ${{ inputs.preset }}
+          make -j 2
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.app }}-${{ github.sha }}
+          path: ${{ inputs.app }}-${{ github.sha }}/bin

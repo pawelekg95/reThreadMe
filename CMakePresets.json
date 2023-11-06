@@ -1,0 +1,109 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+          "name": "Debug",
+          "hidden": true,
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Debug"
+          }
+        },
+        {
+          "name": "Release",
+          "hidden": true,
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release"
+          }
+        },
+    
+        {
+          "name": "Linux_GCC",
+          "hidden": true,
+          "cacheVariables": { "TOOLCHAIN": "gcc" }
+        },
+        {
+          "name": "Linux_Clang",
+          "hidden": true,
+          "cacheVariables": { "TOOLCHAIN": "clang" }
+        },
+
+        {
+            "name": "USE_SAN",
+            "hidden": true,
+            "cacheVariables": { "USE_SAN": true }
+        },
+        {
+            "name": "ASAN",
+            "hidden": true,
+            "inherits": "USE_SAN",
+            "cacheVariables": { "ASAN": true }
+        },
+        {
+            "name": "LSAN",
+            "hidden": true,
+            "inherits": "USE_SAN",
+            "cacheVariables": { "LSAN": true }
+        },
+        {
+            "name": "UBSAN",
+            "hidden": true,
+            "inherits": "USE_SAN",
+            "cacheVariables": { "UBSAN": true }
+        },
+        {
+            "name": "TSAN",
+            "hidden": true,
+            "inherits": "USE_SAN",
+            "cacheVariables": { "TSAN": true }
+        },
+        
+        {
+            "name": "thread_test",
+            "hidden": true,
+            "cacheVariables": { "APP_NAME": "test/thread" }
+        },
+        
+        {
+            "name": "thread_test_gcc_debug",
+            "inherits": [ "Debug", "thread_test", "Linux_GCC" ]
+        },
+        {
+            "name": "thread_test_gcc_release",
+            "inherits": [ "Release", "thread_test", "Linux_GCC" ]
+        },
+        {
+            "name": "thread_test_clang_debug",
+            "inherits": [ "Debug", "thread_test", "Linux_Clang" ]
+        },
+        {
+            "name": "thread_test_clang_release",
+            "inherits": [ "Release", "thread_test", "Linux_Clang" ]
+        },
+
+        {
+            "name": "thread_test_gcc_debug_asan",
+            "inherits": [ "Debug", "thread_test", "Linux_GCC", "ASAN" ]
+        },
+        {
+            "name": "thread_test_gcc_debug_tsan",
+            "inherits": [ "Debug", "thread_test", "Linux_GCC", "TSAN" ]
+        },
+        {
+            "name": "thread_test_gcc_debug_lsan",
+            "inherits": [ "Debug", "thread_test", "Linux_GCC", "LSAN" ]
+        },
+        {
+            "name": "thread_test_gcc_debug_ubsan",
+            "inherits": [ "Debug", "thread_test", "Linux_GCC", "UBSAN" ]
+        },
+        {
+            "name": "thread_test_gcc_debug_asan",
+            "inherits": [ "Debug", "thread_test", "Linux_GCC", "ASAN" ]
+        }
+    ]
+}
