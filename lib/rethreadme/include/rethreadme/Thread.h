@@ -24,7 +24,7 @@ public:
 
     virtual void loopImpl() = 0;
 
-    std::mutex m_mtx{};
+    mutable std::mutex m_mtx{};
     std::counting_semaphore<> m_functionsSemaphore{0};
     std::binary_semaphore m_deinitSemaphore{0};
     std::thread m_thread;
@@ -37,7 +37,7 @@ private:
         while (m_running)
         {
             std::call_once(m_deinitFlag, [this]() { m_deinitSemaphore.release(); });
-            if (!m_functionsSemaphore.try_acquire_for(10ms))
+            if (!m_functionsSemaphore.try_acquire_for(1ms))
             {
                 continue;
             }
@@ -56,14 +56,17 @@ template <typename Function, typename... Args>
 class Thread : public ThreadImpl
 {
 public:
+    Thread() = default;
+
     Thread(const Function& function) { queue(function); }
 
-    template <typename = std::enable_if_t<std::is_invocable_v<Function, Args&...>>>
-    Thread(const Function& function, Args& ...args)
+    template <
+        typename = std::enable_if_t<std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
+                                    std::is_invocable_v<Function, Args&&...>>>
+    Thread(const Function& function, Args&&... args)
     {
-        queue(function, std::forward<Args&...>(args)...);
+        queue(function, std::forward<Args&&...>(args)...);
     }
-
 
     ~Thread()
     {
@@ -75,12 +78,22 @@ public:
         m_thread.join();
     }
 
-    template <typename = std::enable_if_t<std::is_invocable_v<Function, Args&...>>>
-    void queue(const Function& function, Args&... args)
+    bool empty() const
+    {
+        std::lock_guard lock(m_mtx);
+        return m_functions.empty() && !m_lastFunction.has_value();
+    }
+
+    operator bool() { return !empty(); }
+
+    template <
+        typename = std::enable_if_t<std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
+                                    std::is_invocable_v<Function, Args&&...>>>
+    void queue(const Function& function, Args&&... args)
     {
         std::lock_guard lock(m_mtx);
         m_functions.push(function);
-        m_argsRef.push(std::forward<Args&...>(args)...);
+        m_argsRef.push(std::forward<Args&&...>(args)...);
         m_functionsSemaphore.release();
     }
 
@@ -91,19 +104,46 @@ public:
         m_functionsSemaphore.release();
     }
 
+    bool runLast()
+    {
+        if (!m_lastFunction)
+        {
+            return false;
+        }
+        if (m_lastFunctionArgs)
+        {
+            queue(*m_lastFunction, *m_lastFunctionArgs);
+        }
+        else
+        {
+            queue(*m_lastFunction);
+        }
+        return true;
+    }
+
 private:
-    void callerWithArgsRef()
+    void queue(const Function& function, std::tuple<Args&&...> args)
+    {
+        std::lock_guard lock(m_mtx);
+        m_functions.push(function);
+        m_argsRef.push(args);
+        m_functionsSemaphore.release();
+    }
+
+    void callerWithArgs()
     {
         Function function{};
-        std::tuple<Args&...> args;
+        std::unique_ptr<std::tuple<Args&&...>> args;
         {
             std::lock_guard lock(m_mtx);
             function = m_functions.front();
-            args = m_argsRef.front();
+            args = std::make_unique<std::tuple<Args&&...>>(std::move(m_argsRef.front()));
             m_functions.pop();
             m_argsRef.pop();
+            m_lastFunction = function;
+            m_lastFunctionArgs = std::tuple<Args&&...>(std::move(*args));
         }
-        std::apply(function, args);
+        std::apply(function, (*m_lastFunctionArgs));
     }
 
     void callerNoArgs()
@@ -113,15 +153,18 @@ private:
             std::lock_guard lock(m_mtx);
             function = m_functions.front();
             m_functions.pop();
+
+            m_lastFunction = function;
         }
         function();
     }
 
     void loopImpl() override
     {
-        if constexpr (std::is_invocable<Function, Args&...>::value)
+        if constexpr (std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
+                      std::is_invocable_v<Function, Args&&...>)
         {
-            callerWithArgsRef();
+            callerWithArgs();
         }
         else
         {
@@ -131,7 +174,10 @@ private:
 
 private:
     std::queue<Function> m_functions;
-    std::queue<std::tuple<Args&...>> m_argsRef;
+    std::queue<std::tuple<Args&&...>> m_argsRef;
+
+    std::optional<Function> m_lastFunction{std::nullopt};
+    std::optional<std::tuple<Args&&...>> m_lastFunctionArgs{std::nullopt};
 };
 
 } // namespace rethreadme

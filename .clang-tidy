@@ -78,6 +78,7 @@ CheckOptions:
     value:             '1'
   - key:               readability-inconsistent-declaration-parameter-name.Strict
     value:             '1'
-
+  - key:               readability-identifier-naming.TypeTemplateParameterIgnoredRegexp
+    value:             expr-type
 
 ...
