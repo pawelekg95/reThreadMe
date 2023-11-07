@@ -91,7 +91,7 @@ jobs:
     uses: ./.github/workflows/run.yml
     with:
       artifacts_name: Build_thread_test_gcc_debug-${{ github.sha }}
-      app: ./one-variable-example
+      app: ./test
     secrets: inherit
 
   # Run sanitized test
