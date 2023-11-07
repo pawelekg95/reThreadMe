@@ -20,6 +20,33 @@ jobs:
       app: Build_thread_test_gcc_debug
     secrets: inherit
 
+  Build_thread_test_gcc_release:
+    name: Build_thread_test_gcc_release
+    needs: ReThreadMe_docker
+    uses: ./.github/workflows/build.yml
+    with:
+      preset: thread_test_gcc_release
+      app: Build_thread_test_gcc_release
+    secrets: inherit
+
+  Build_thread_test_clang_debug:
+    name: Build_thread_test_clang_debug
+    needs: ReThreadMe_docker
+    uses: ./.github/workflows/build.yml
+    with:
+      preset: thread_test_clang_debug
+      app: Build_thread_test_clang_debug
+    secrets: inherit
+
+  Build_thread_test_clang_release:
+    name: Build_thread_test_clang_release
+    needs: ReThreadMe_docker
+    uses: ./.github/workflows/build.yml
+    with:
+      preset: thread_test_clang_release
+      app: Build_thread_test_clang_release
+    secrets: inherit
+
   # Build sanitized test
   Build_thread_test_gcc_debug_lsan:
     name: Build_thread_test_gcc_debug_lsan

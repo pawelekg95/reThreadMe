@@ -100,10 +100,6 @@
         {
             "name": "thread_test_gcc_debug_ubsan",
             "inherits": [ "Debug", "thread_test", "Linux_GCC", "UBSAN" ]
-        },
-        {
-            "name": "thread_test_gcc_debug_asan",
-            "inherits": [ "Debug", "thread_test", "Linux_GCC", "ASAN" ]
         }
     ]
 }

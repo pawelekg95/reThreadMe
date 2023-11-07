@@ -10,60 +10,28 @@
 #include <thread>
 #include <type_traits>
 
-namespace {
+namespace rethreadme {
 
-class ThreadImpl
+template <typename Function, typename... Args>
+class Thread
 {
 public:
-    ThreadImpl()
+    Thread()
     {
         m_thread = std::thread([this]() { loop(); });
     }
 
-    virtual ~ThreadImpl(){};
-
-    virtual void loopImpl() = 0;
-
-    mutable std::mutex m_mtx{};
-    std::counting_semaphore<> m_functionsSemaphore{0};
-    std::binary_semaphore m_deinitSemaphore{0};
-    std::thread m_thread;
-    std::atomic<bool> m_running{true};
-
-private:
-    void loop()
-    {
-        using namespace std::chrono_literals;
-        while (m_running)
-        {
-            std::call_once(m_deinitFlag, [this]() { m_deinitSemaphore.release(); });
-            if (!m_functionsSemaphore.try_acquire_for(1ms))
-            {
-                continue;
-            }
-            this->loopImpl();
-        }
+    Thread(const Function& function)
+        : Thread()
+    { 
+        queue(function);
     }
-
-    std::once_flag m_deinitFlag{};
-};
-
-} // namespace
-
-namespace rethreadme {
-
-template <typename Function, typename... Args>
-class Thread : public ThreadImpl
-{
-public:
-    Thread() = default;
-
-    Thread(const Function& function) { queue(function); }
 
     template <
         typename = std::enable_if_t<std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
                                     std::is_invocable_v<Function, Args&&...>>>
     Thread(const Function& function, Args&&... args)
+        : Thread()
     {
         queue(function, std::forward<Args&&...>(args)...);
     }
@@ -122,6 +90,20 @@ public:
     }
 
 private:
+    void loop()
+    {
+        using namespace std::chrono_literals;
+        while (m_running)
+        {
+            std::call_once(m_deinitFlag, [this]() { m_deinitSemaphore.release(); });
+            if (!m_functionsSemaphore.try_acquire_for(1ms))
+            {
+                continue;
+            }
+            loopImpl();
+        }
+    }
+
     void queue(const Function& function, std::tuple<Args&&...> args)
     {
         std::lock_guard lock(m_mtx);
@@ -159,7 +141,7 @@ private:
         function();
     }
 
-    void loopImpl() override
+    void loopImpl()
     {
         if constexpr (std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
                       std::is_invocable_v<Function, Args&&...>)
@@ -173,6 +155,13 @@ private:
     }
 
 private:
+    mutable std::mutex m_mtx{};
+    std::counting_semaphore<> m_functionsSemaphore{0};
+    std::binary_semaphore m_deinitSemaphore{0};
+    std::once_flag m_deinitFlag;
+    std::thread m_thread;
+    std::atomic<bool> m_running{true};
+
     std::queue<Function> m_functions;
     std::queue<std::tuple<Args&&...>> m_argsRef;
 
