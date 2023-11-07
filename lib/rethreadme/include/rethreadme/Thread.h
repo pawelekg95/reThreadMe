@@ -23,7 +23,7 @@ public:
 
     Thread(const Function& function)
         : Thread()
-    { 
+    {
         queue(function);
     }
 

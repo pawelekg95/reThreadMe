@@ -148,14 +148,14 @@ jobs:
     with:
       pre_run: cd "${{ github.workspace }}"
       linter: run-clang-format.py
-      arguments: -ir lib example
+      arguments: -ir lib test
     secrets: inherit
 
   Clang-tidy:
     needs: ReThreadMe_docker
     uses: ./.github/workflows/quality.yml
     with:
-      pre_run: cd "${{ github.workspace }}"; rm -rf ./cmake-build; mkdir ./cmake-build; cd ./cmake-build; cmake .. --preset one_variable_example_clang_debug
+      pre_run: cd "${{ github.workspace }}"; rm -rf ./cmake-build; mkdir ./cmake-build; cd ./cmake-build; cmake .. --preset thread_test_clang_debug
       linter: run-clang-tidy
     secrets: inherit
 
