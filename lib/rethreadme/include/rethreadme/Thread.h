@@ -21,19 +21,10 @@ public:
         m_thread = std::thread([this]() { loop(); });
     }
 
-    Thread(const Function& function)
-        : Thread()
-    {
-        queue(function);
-    }
-
-    template <
-        typename = std::enable_if_t<std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
-                                    std::is_invocable_v<Function, Args&&...>>>
     Thread(const Function& function, Args&&... args)
         : Thread()
     {
-        queue(function, std::forward<Args&&...>(args)...);
+        queue(function, std::forward<Args>(args)...);
     }
 
     ~Thread()
@@ -54,38 +45,24 @@ public:
 
     operator bool() { return !empty(); }
 
-    template <
-        typename = std::enable_if_t<std::is_invocable_v<Function, Args...> || std::is_invocable_v<Function, Args&...> ||
-                                    std::is_invocable_v<Function, Args&&...>>>
     void queue(const Function& function, Args&&... args)
     {
         std::lock_guard lock(m_mtx);
         m_functions.push(function);
-        m_argsRef.push(std::forward<Args&&...>(args)...);
-        m_functionsSemaphore.release();
-    }
-
-    void queue(const Function& function)
-    {
-        std::lock_guard lock(m_mtx);
-        m_functions.push(function);
+        m_argsRef.push(std::forward_as_tuple(std::forward<Args>(args)...));
         m_functionsSemaphore.release();
     }
 
     bool runLast()
     {
-        if (!m_lastFunction)
         {
-            return false;
+            std::lock_guard lock(m_mtx);
+            if (!m_lastFunction)
+            {
+                return false;
+            }
         }
-        if (m_lastFunctionArgs)
-        {
-            queue(*m_lastFunction, *m_lastFunctionArgs);
-        }
-        else
-        {
-            queue(*m_lastFunction);
-        }
+        queue(*(m_lastFunction.value()), *(m_lastFunctionArgs.value()));
         return true;
     }
 
@@ -104,7 +81,7 @@ private:
         }
     }
 
-    void queue(const Function& function, std::tuple<Args&&...> args)
+    void queue(const Function& function, std::tuple<Args...> args)
     {
         std::lock_guard lock(m_mtx);
         m_functions.push(function);
@@ -114,31 +91,31 @@ private:
 
     void callerWithArgs()
     {
-        Function function{};
-        std::unique_ptr<std::tuple<Args&&...>> args;
+        std::unique_ptr<Function> function{};
+        std::unique_ptr<std::tuple<Args...>> args{};
         {
             std::lock_guard lock(m_mtx);
-            function = m_functions.front();
-            args = std::make_unique<std::tuple<Args&&...>>(std::move(m_argsRef.front()));
+            function = std::make_unique<Function>(std::move(m_functions.front()));
+            args = std::make_unique<std::tuple<Args...>>(std::move(m_argsRef.front()));
             m_functions.pop();
             m_argsRef.pop();
-            m_lastFunction = function;
-            m_lastFunctionArgs = std::tuple<Args&&...>(std::move(*args));
+            m_lastFunction = std::move(function);
+            m_lastFunctionArgs = std::move(args);
         }
-        std::apply(function, (*m_lastFunctionArgs));
+        std::apply(*(m_lastFunction.value()), (*(m_lastFunctionArgs.value())));
     }
 
     void callerNoArgs()
     {
-        Function function{};
+        std::unique_ptr<Function> function{};
         {
             std::lock_guard lock(m_mtx);
-            function = m_functions.front();
+            function = std::make_unique<Function>(std::move(m_functions.front()));
             m_functions.pop();
 
-            m_lastFunction = function;
+            m_lastFunction = std::move(function);
         }
-        function();
+        (*function)();
     }
 
     void loopImpl()
@@ -163,10 +140,10 @@ private:
     std::atomic<bool> m_running{true};
 
     std::queue<Function> m_functions;
-    std::queue<std::tuple<Args&&...>> m_argsRef;
+    std::queue<std::tuple<Args...>> m_argsRef;
 
-    std::optional<Function> m_lastFunction{std::nullopt};
-    std::optional<std::tuple<Args&&...>> m_lastFunctionArgs{std::nullopt};
+    std::optional<std::unique_ptr<Function>> m_lastFunction{std::nullopt};
+    std::optional<std::unique_ptr<std::tuple<Args...>>> m_lastFunctionArgs{std::nullopt};
 };
 
 } // namespace rethreadme
