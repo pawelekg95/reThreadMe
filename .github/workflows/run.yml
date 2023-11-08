@@ -1,0 +1,43 @@
+name: Run_app
+on:
+  workflow_call:
+    inputs:
+      artifacts_name:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+      arguments:
+        required: false
+        type: string
+      pre_run:
+        required: false
+        type: string
+      post_run:
+        required: false
+        type: string
+
+jobs:
+  Run_app:
+    runs-on: ubuntu-20.04
+    environment: docker
+    env:
+      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    container:
+      image: pawelekg95/rethreadme:latest
+      credentials:
+        username: ${{ env.DOCKER_LOGIN }}
+        password: ${{ env.DOCKER_PASSWORD }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifacts_name }}
+
+      - name: Test
+        run: |
+          chmod 755 ${{ inputs.app }}
+          ${{ inputs.pre_run }}
+          ${{ inputs.app }} ${{ inputs.arguments }}
+          ${{ inputs.post_run }}

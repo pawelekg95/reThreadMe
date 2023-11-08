@@ -1,0 +1,137 @@
+#include "rethreadme/Thread.h"
+
+#include <catch2/catch_all.hpp>
+
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <semaphore>
+
+void printSome(int a, std::mutex& mtx)
+{
+    std::lock_guard lock(mtx);
+    std::cout << "Print func: " << a << std::endl;
+}
+
+void prints(int a)
+{
+    std::cout << "Print func: " << a << std::endl;
+}
+
+void modifySomeValue(int& a, std::mutex& mtx, std::counting_semaphore<>& smph)
+{
+    std::lock_guard lock(mtx);
+    a++;
+    smph.release();
+}
+
+TEST_CASE("")
+{
+    std::counting_semaphore<> semaphore{0};
+    std::mutex mutex{};
+
+    using namespace std::chrono_literals;
+    rethreadme::Thread thread1(std::function([&mutex]() {
+        std::lock_guard lock(mutex);
+        std::cout << "It works\n";
+    }));
+
+    std::this_thread::sleep_for(10ms);
+
+    thread1.runLast();
+
+    rethreadme::Thread thread2(std::function([&mutex](int i) {
+                                   std::lock_guard lock(mutex);
+                                   std::cout << "This works as well: " << i << std::endl;
+                               }),
+                               122222);
+    REQUIRE(true);
+    thread1.queue(std::function([]() { std::cout << "Again, it works!\n"; }));
+    thread2.queue(std::function<void(int)>(
+                      [](int i) { std::cout << "This works as well but different arg: " << i << std::endl; }),
+                  666);
+    std::this_thread::sleep_for(100ms);
+
+    rethreadme::Thread threadWithLambda([]() { std::cout << "Lambda thread\n"; });
+
+    rethreadme::Thread threadWithLambdaAndArguments(
+        [](int a, int b) { std::cout << "Lambda thread and args\n"
+                                     << a << " " << b << std::endl; },
+        1,
+        2);
+
+    std::this_thread::sleep_for(10ms);
+    REQUIRE(threadWithLambdaAndArguments.runLast());
+
+    rethreadme::Thread thread3(&prints, 1);
+    thread3.queue(&prints, 2);
+    thread3.queue(&prints, 3);
+    thread3.queue(&prints, 4);
+    thread3.queue(&prints, 5);
+    std::this_thread::sleep_for(10ms);
+
+    int someVal = 10;
+    rethreadme::
+        Thread<void (*)(int&, std::mutex&, std::counting_semaphore<>&), int&, std::mutex&, std::counting_semaphore<>&>
+            thread4(&modifySomeValue, someVal, mutex, semaphore);
+    semaphore.acquire();
+
+    {
+        std::lock_guard lock(mutex);
+        REQUIRE(someVal == 11);
+    }
+
+    thread4.queue(&modifySomeValue, someVal, mutex, semaphore);
+    semaphore.acquire();
+    {
+        std::lock_guard lock(mutex);
+        REQUIRE(someVal == 12);
+    }
+
+    REQUIRE(thread4.runLast());
+    semaphore.acquire();
+    {
+        std::lock_guard lock(mutex);
+        REQUIRE(someVal == 13);
+    }
+
+    {
+        std::lock_guard lock(mutex);
+        someVal = 1;
+        REQUIRE(someVal == 1);
+    }
+    REQUIRE(thread4.runLast());
+    semaphore.acquire();
+    {
+        std::lock_guard lock(mutex);
+        REQUIRE(someVal == 2);
+    }
+
+    rethreadme::
+        Thread<void (*)(int&, std::mutex&, std::counting_semaphore<>&), int&, std::mutex&, std::counting_semaphore<>&>
+            emptyThread;
+
+    REQUIRE(thread1);
+    REQUIRE(thread2);
+    REQUIRE(thread3);
+    REQUIRE(thread4);
+    REQUIRE(!emptyThread);
+    REQUIRE(emptyThread.empty());
+    REQUIRE(!emptyThread.runLast());
+
+    emptyThread.queue(&modifySomeValue, someVal, mutex, semaphore);
+    semaphore.acquire();
+    {
+        std::lock_guard lock(mutex);
+        REQUIRE(someVal == 3);
+    }
+
+    REQUIRE(emptyThread);
+    REQUIRE(!emptyThread.empty());
+    REQUIRE(emptyThread.runLast());
+    semaphore.acquire();
+    {
+        std::lock_guard lock(mutex);
+        REQUIRE(someVal == 4);
+    }
+}

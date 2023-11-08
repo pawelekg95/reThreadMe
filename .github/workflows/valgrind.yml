@@ -1,0 +1,43 @@
+name: Valgrind_tests
+on:
+  workflow_call:
+    inputs:
+      artifacts_name:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+      arguments:
+        required: false
+        type: string
+      pre_run:
+        required: false
+        type: string
+      post_run:
+        required: false
+        type: string
+
+jobs:
+  Valgrind_Test:
+    runs-on: ubuntu-20.04
+    environment: docker
+    env:
+      DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    container:
+      image: pawelekg95/rethreadme:latest
+      credentials:
+        username: ${{ env.DOCKER_LOGIN }}
+        password: ${{ env.DOCKER_PASSWORD }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifacts_name }}
+
+      - name: Run application under valgrind
+        run: |
+          chmod 755 ${{ inputs.app }}
+          ${{ inputs.pre_run }}
+          valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all --error-exitcode=123 --fair-sched=yes ${{ inputs.app }} ${{ inputs.arguments }}
+          ${{ inputs.post_run }}
