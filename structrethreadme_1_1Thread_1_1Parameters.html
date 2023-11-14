@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('structrethreadme_1_1Thread_1_1Paramete
 <div class="dynheader">
 Collaboration diagram for rethreadme::Thread&lt; Function, Args &gt;::Parameters:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="structrethreadme_1_1Thread_1_1Parameters__coll__graph.svg" width="1622" height="212"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
+<div class="center"><iframe scrolling="no" frameborder="0" src="structrethreadme_1_1Thread_1_1Parameters__coll__graph.svg" width="1622" height="227"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe>
 </div>
 </div>
 <table class="memberdecls">
@@ -116,6 +116,8 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a5e6cf2d5780712c31f1906249f8648ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a3c1cda4a720ace4e465898a534e374"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structrethreadme_1_1Thread_1_1Parameters.html#a1a3c1cda4a720ace4e465898a534e374">running</a> {true}</td></tr>
 <tr class="separator:a1a3c1cda4a720ace4e465898a534e374"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ca8e4f8ff55a16651a7ae83b6fed021"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structrethreadme_1_1Thread_1_1Parameters.html#a1ca8e4f8ff55a16651a7ae83b6fed021">inExecution</a> {}</td></tr>
+<tr class="separator:a1ca8e4f8ff55a16651a7ae83b6fed021"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f6dd3491d33d2d47f6972d80b83c166"><td class="memItemLeft" align="right" valign="top">std::atomic&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structrethreadme_1_1Thread_1_1Parameters.html#a6f6dd3491d33d2d47f6972d80b83c166">isMoveable</a> {}</td></tr>
 <tr class="separator:a6f6dd3491d33d2d47f6972d80b83c166"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a988e33a8af1bb4312aa9e3574bf34e43"><td class="memItemLeft" align="right" valign="top">std::queue&lt; Function &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structrethreadme_1_1Thread_1_1Parameters.html#a988e33a8af1bb4312aa9e3574bf34e43">functions</a></td></tr>
@@ -202,6 +204,22 @@ template&lt;typename Function , typename... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">std::counting_semaphore <a class="el" href="classrethreadme_1_1Thread.html">rethreadme::Thread</a>&lt; Function, Args &gt;::Parameters::functionsSemaphore {0}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a1ca8e4f8ff55a16651a7ae83b6fed021" name="a1ca8e4f8ff55a16651a7ae83b6fed021"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ca8e4f8ff55a16651a7ae83b6fed021">&#9670;&#160;</a></span>inExecution</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Function , typename... Args&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">std::atomic&lt;bool&gt; <a class="el" href="classrethreadme_1_1Thread.html">rethreadme::Thread</a>&lt; Function, Args &gt;::Parameters::inExecution {}</td>
         </tr>
       </table>
 </div><div class="memdoc">

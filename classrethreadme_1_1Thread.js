@@ -9,6 +9,7 @@ var classrethreadme_1_1Thread =
     [ "callerNoArgs", "classrethreadme_1_1Thread.html#a2f67c8ac78cd2811a2e62f5a146927bb", null ],
     [ "callerWithArgs", "classrethreadme_1_1Thread.html#aeda55121b4720366e0a003551d758af1", null ],
     [ "empty", "classrethreadme_1_1Thread.html#af4bd9c6cd2d4b13cf41f91e76482039c", null ],
+    [ "idle", "classrethreadme_1_1Thread.html#a3060fae08d595cab33b206735da008ac", null ],
     [ "isMoveable", "classrethreadme_1_1Thread.html#a824c588d9381214607f492e2ddd74142", null ],
     [ "loop", "classrethreadme_1_1Thread.html#ae0c9afde470877016f21d0d0ff5f408c", null ],
     [ "loopImpl", "classrethreadme_1_1Thread.html#ab9bb3158face6690d3783fca2d52ee27", null ],
