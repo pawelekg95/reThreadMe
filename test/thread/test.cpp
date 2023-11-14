@@ -155,3 +155,24 @@ TEST_CASE("Moving")
     thread3 = std::move(thread2);
     thread3.queue(std::function([]() { std::cout << "It works, again in moved thread\n"; }));
 }
+
+TEST_CASE("Check thread is idle")
+{
+    std::binary_semaphore semaphore{0};
+    rethreadme::Thread<std::function<void()>> thread1;
+
+    auto func = std::function([&semaphore]() { semaphore.acquire(); });
+
+    REQUIRE(thread1.idle());
+
+    thread1.queue(func);
+    REQUIRE(!thread1.idle());
+    REQUIRE(!thread1.empty());
+    REQUIRE(thread1);
+
+    std::this_thread::sleep_for(20ms);
+
+    semaphore.release();
+    std::this_thread::sleep_for(20ms);
+    REQUIRE(thread1.idle());
+}
