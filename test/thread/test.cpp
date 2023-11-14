@@ -155,4 +155,11 @@ TEST_CASE("Moving")
     thread2.queue(std::function([]() { std::cout << "It works, but from another thread\n"; }));
 
     std::this_thread::sleep_for(10ms);
+
+    thread2 = rethreadme::Thread<std::function<void()>>();
+
+    thread2.queue(
+        std::function([]() { std::cout << "It works, but from thread created with move assignment operator\n"; }));
+
+    std::this_thread::sleep_for(10ms);
 }
