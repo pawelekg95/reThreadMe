@@ -153,6 +153,5 @@ TEST_CASE("Moving")
 
     rethreadme::Thread<std::function<void()>> thread3;
     thread3 = std::move(thread2);
-    thread3.queue(
-        std::function([]() { std::cout << "It works, again in moved thread\n"; }));
+    thread3.queue(std::function([]() { std::cout << "It works, again in moved thread\n"; }));
 }

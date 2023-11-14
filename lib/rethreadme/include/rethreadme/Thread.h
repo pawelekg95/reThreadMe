@@ -132,7 +132,7 @@ private:
 
     bool isMoveable() const
     {
-        if (!m_parameters) 
+        if (!m_parameters)
         {
             return false;
         }
