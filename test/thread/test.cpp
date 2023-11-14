@@ -7,6 +7,8 @@
 #include <mutex>
 #include <semaphore>
 
+using namespace std::chrono_literals;
+
 void printSome(int a, std::mutex& mtx)
 {
     std::lock_guard lock(mtx);
@@ -25,12 +27,11 @@ void modifySomeValue(int& a, std::mutex& mtx, std::counting_semaphore<>& smph)
     smph.release();
 }
 
-TEST_CASE("")
+TEST_CASE("Creation")
 {
     std::counting_semaphore<> semaphore{0};
     std::mutex mutex{};
 
-    using namespace std::chrono_literals;
     rethreadme::Thread thread1(std::function([&mutex]() {
         std::lock_guard lock(mutex);
         std::cout << "It works\n";
@@ -134,4 +135,24 @@ TEST_CASE("")
         std::lock_guard lock(mutex);
         REQUIRE(someVal == 4);
     }
+}
+
+TEST_CASE("Moving")
+{
+    rethreadme::Thread<std::function<void()>> thread1;
+    REQUIRE(!thread1);
+    REQUIRE(thread1.empty());
+
+    thread1.queue(std::function([]() { std::cout << "It works\n"; }));
+
+    REQUIRE(thread1);
+    REQUIRE(!thread1.empty());
+
+    rethreadme::Thread thread2{std::move(thread1)};
+
+    std::this_thread::sleep_for(10ms);
+
+    thread2.queue(std::function([]() { std::cout << "It works, but from another thread\n"; }));
+
+    std::this_thread::sleep_for(10ms);
 }
