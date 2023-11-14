@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['_7ethread_0',['~Thread',['../classrethreadme_1_1Thread.html#a5f1fc924f39ad06bee109853f516d23a',1,'rethreadme::Thread']]]
+  ['operator_20bool_0',['operator bool',['../classrethreadme_1_1Thread.html#a10e20e249008cbc19c25979c6f131123',1,'rethreadme::Thread']]],
+  ['operator_3d_1',['operator=',['../classrethreadme_1_1Thread.html#a6af99f690a894a83a9aa26f20679d1e9',1,'rethreadme::Thread::operator=(Thread &amp;&amp;other) noexcept'],['../classrethreadme_1_1Thread.html#a14ea867de612b876d63299261b58122d',1,'rethreadme::Thread::operator=(const Thread &amp;)=delete']]]
 ];
