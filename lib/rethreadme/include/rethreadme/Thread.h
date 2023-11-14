@@ -34,6 +34,10 @@ public:
 
     Thread(Thread&& other) noexcept
     {
+        if (this == &other)
+        {
+            return;
+        }
         while (!other.isMoveable())
         {
             std::this_thread::sleep_for(1ms);
@@ -45,6 +49,11 @@ public:
 
     Thread& operator=(Thread&& other) noexcept
     {
+        if (this == &other)
+        {
+            return *this;
+        }
+        this->~Thread();
         while (!other.isMoveable())
         {
             std::this_thread::sleep_for(1ms);
@@ -71,6 +80,7 @@ public:
             m_parameters->running = false;
         }
         m_parameters->thread.join();
+        m_parameters = nullptr;
     }
 
     bool empty() const
@@ -111,6 +121,7 @@ private:
         std::once_flag deinitFlag{};
         std::thread thread;
         std::atomic<bool> running{true};
+        std::atomic<bool> isMoveable{};
 
         std::queue<Function> functions;
         std::queue<std::tuple<Args...>> argsRef;
@@ -119,13 +130,20 @@ private:
         std::optional<std::shared_ptr<std::tuple<Args...>>> lastFunctionArgs{std::nullopt};
     };
 
-    bool isMoveable() const { return m_isMoveable; }
+    bool isMoveable() const
+    {
+        if (!m_parameters) 
+        {
+            return false;
+        }
+        return m_parameters->isMoveable.load();
+    }
 
     void loop(std::shared_ptr<Parameters> parameters)
     {
+        parameters->isMoveable.store(true);
         while (parameters->running)
         {
-            std::call_once(m_isMoveableFlag, [this] { m_isMoveable = true; });
             std::call_once(parameters->deinitFlag, [parameters]() { parameters->deinitSemaphore.release(); });
             if (!parameters->functionsSemaphore.try_acquire_for(1ms))
             {
@@ -177,10 +195,8 @@ private:
     }
 
 private:
-    // PIMPL to allow easy move semantics
+    // Pointer to allow easy move semantics
     std::shared_ptr<Parameters> m_parameters{std::make_shared<Parameters>()};
-    std::once_flag m_isMoveableFlag{};
-    std::atomic<bool> m_isMoveable{};
 };
 
 } // namespace rethreadme

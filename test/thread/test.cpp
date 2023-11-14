@@ -37,8 +37,6 @@ TEST_CASE("Creation")
         std::cout << "It works\n";
     }));
 
-    std::this_thread::sleep_for(10ms);
-
     thread1.runLast();
 
     rethreadme::Thread thread2(std::function([&mutex](int i) {
@@ -51,7 +49,6 @@ TEST_CASE("Creation")
     thread2.queue(std::function<void(int)>(
                       [](int i) { std::cout << "This works as well but different arg: " << i << std::endl; }),
                   666);
-    std::this_thread::sleep_for(100ms);
 
     rethreadme::Thread threadWithLambda([]() { std::cout << "Lambda thread\n"; });
 
@@ -61,7 +58,7 @@ TEST_CASE("Creation")
         1,
         2);
 
-    std::this_thread::sleep_for(10ms);
+    std::this_thread::sleep_for(100ms);
     REQUIRE(threadWithLambdaAndArguments.runLast());
 
     rethreadme::Thread thread3(&prints, 1);
@@ -69,7 +66,6 @@ TEST_CASE("Creation")
     thread3.queue(&prints, 3);
     thread3.queue(&prints, 4);
     thread3.queue(&prints, 5);
-    std::this_thread::sleep_for(10ms);
 
     int someVal = 10;
     rethreadme::
@@ -149,17 +145,14 @@ TEST_CASE("Moving")
     REQUIRE(!thread1.empty());
 
     rethreadme::Thread thread2{std::move(thread1)};
-
-    std::this_thread::sleep_for(10ms);
-
     thread2.queue(std::function([]() { std::cout << "It works, but from another thread\n"; }));
 
-    std::this_thread::sleep_for(10ms);
-
     thread2 = rethreadme::Thread<std::function<void()>>();
-
     thread2.queue(
         std::function([]() { std::cout << "It works, but from thread created with move assignment operator\n"; }));
 
-    std::this_thread::sleep_for(10ms);
+    rethreadme::Thread<std::function<void()>> thread3;
+    thread3 = std::move(thread2);
+    thread3.queue(
+        std::function([]() { std::cout << "It works, again in moved thread\n"; }));
 }
