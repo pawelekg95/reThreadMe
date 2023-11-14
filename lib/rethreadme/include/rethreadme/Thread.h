@@ -2,7 +2,6 @@
 
 #include <atomic>
 #include <chrono>
-#include <iostream>
 #include <list>
 #include <memory>
 #include <mutex>
@@ -89,6 +88,8 @@ public:
         return m_parameters->functions.empty() && !m_parameters->lastFunction.has_value();
     }
 
+    bool idle() const { return !m_parameters->inExecution; }
+
     operator bool() { return !empty(); }
 
     void queue(const Function& function, Args&&... args)
@@ -121,6 +122,7 @@ private:
         std::once_flag deinitFlag{};
         std::thread thread;
         std::atomic<bool> running{true};
+        std::atomic<bool> inExecution{};
         std::atomic<bool> isMoveable{};
 
         std::queue<Function> functions;
@@ -149,8 +151,9 @@ private:
             {
                 continue;
             }
-            std::lock_guard lock(parameters->mtx);
+            parameters->inExecution = true;
             loopImpl(parameters);
+            parameters->inExecution = false;
         }
     }
 
@@ -164,20 +167,29 @@ private:
 
     void callerWithArgs(std::shared_ptr<Parameters> parameters)
     {
-        auto function = std::make_shared<Function>(std::move(parameters->functions.front()));
-        auto args = std::make_shared<std::tuple<Args...>>(std::move(parameters->argsRef.front()));
-        parameters->functions.pop();
-        parameters->argsRef.pop();
-        parameters->lastFunction = function;
-        parameters->lastFunctionArgs = args;
-        std::apply(*(parameters->lastFunction.value()), (*(parameters->lastFunctionArgs.value())));
+        std::shared_ptr<Function> function{};
+        std::shared_ptr<std::tuple<Args...>> args{};
+        {
+            std::lock_guard lock(parameters->mtx);
+            function = std::make_shared<Function>(std::move(parameters->functions.front()));
+            args = std::make_shared<std::tuple<Args...>>(std::move(parameters->argsRef.front()));
+            parameters->functions.pop();
+            parameters->argsRef.pop();
+            parameters->lastFunction = function;
+            parameters->lastFunctionArgs = args;
+        }
+        std::apply(*function, *args);
     }
 
     void callerNoArgs(std::shared_ptr<Parameters> parameters)
     {
-        auto function = std::make_shared<Function>(std::move(parameters->functions->front()));
-        parameters->functions->pop();
-        parameters->lastFunction = std::move(function);
+        std::shared_ptr<Function> function{};
+        {
+            std::lock_guard lock(parameters->mtx);
+            function = std::make_shared<Function>(std::move(parameters->functions->front()));
+            parameters->functions->pop();
+            parameters->lastFunction = function;
+        }
         (*function)();
     }
 
