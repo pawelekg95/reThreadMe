@@ -88,11 +88,7 @@ public:
         return m_parameters->functions.empty() && !m_parameters->lastFunction.has_value();
     }
 
-    bool idle() const
-    {
-        std::lock_guard lock(m_parameters->mtx);
-        return m_parameters->functions.empty();
-    }
+    bool idle() const { return !m_parameters->inExecution; }
 
     operator bool() { return !empty(); }
 
@@ -126,6 +122,7 @@ private:
         std::once_flag deinitFlag{};
         std::thread thread;
         std::atomic<bool> running{true};
+        std::atomic<bool> inExecution{};
         std::atomic<bool> isMoveable{};
 
         std::queue<Function> functions;
@@ -154,7 +151,9 @@ private:
             {
                 continue;
             }
+            parameters->inExecution = true;
             loopImpl(parameters);
+            parameters->inExecution = false;
         }
     }
 

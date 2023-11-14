@@ -166,6 +166,9 @@ TEST_CASE("Check thread is idle")
     REQUIRE(thread1.idle());
 
     thread1.queue(func);
+
+    std::this_thread::sleep_for(20ms);
+
     REQUIRE(!thread1.idle());
     REQUIRE(!thread1.empty());
     REQUIRE(thread1);
