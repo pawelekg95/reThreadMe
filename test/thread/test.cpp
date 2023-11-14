@@ -7,6 +7,8 @@
 #include <mutex>
 #include <semaphore>
 
+using namespace std::chrono_literals;
+
 void printSome(int a, std::mutex& mtx)
 {
     std::lock_guard lock(mtx);
@@ -25,18 +27,15 @@ void modifySomeValue(int& a, std::mutex& mtx, std::counting_semaphore<>& smph)
     smph.release();
 }
 
-TEST_CASE("")
+TEST_CASE("Creation")
 {
     std::counting_semaphore<> semaphore{0};
     std::mutex mutex{};
 
-    using namespace std::chrono_literals;
     rethreadme::Thread thread1(std::function([&mutex]() {
         std::lock_guard lock(mutex);
         std::cout << "It works\n";
     }));
-
-    std::this_thread::sleep_for(10ms);
 
     thread1.runLast();
 
@@ -50,7 +49,6 @@ TEST_CASE("")
     thread2.queue(std::function<void(int)>(
                       [](int i) { std::cout << "This works as well but different arg: " << i << std::endl; }),
                   666);
-    std::this_thread::sleep_for(100ms);
 
     rethreadme::Thread threadWithLambda([]() { std::cout << "Lambda thread\n"; });
 
@@ -60,7 +58,7 @@ TEST_CASE("")
         1,
         2);
 
-    std::this_thread::sleep_for(10ms);
+    std::this_thread::sleep_for(100ms);
     REQUIRE(threadWithLambdaAndArguments.runLast());
 
     rethreadme::Thread thread3(&prints, 1);
@@ -68,7 +66,6 @@ TEST_CASE("")
     thread3.queue(&prints, 3);
     thread3.queue(&prints, 4);
     thread3.queue(&prints, 5);
-    std::this_thread::sleep_for(10ms);
 
     int someVal = 10;
     rethreadme::
@@ -134,4 +131,27 @@ TEST_CASE("")
         std::lock_guard lock(mutex);
         REQUIRE(someVal == 4);
     }
+}
+
+TEST_CASE("Moving")
+{
+    rethreadme::Thread<std::function<void()>> thread1;
+    REQUIRE(!thread1);
+    REQUIRE(thread1.empty());
+
+    thread1.queue(std::function([]() { std::cout << "It works\n"; }));
+
+    REQUIRE(thread1);
+    REQUIRE(!thread1.empty());
+
+    rethreadme::Thread thread2{std::move(thread1)};
+    thread2.queue(std::function([]() { std::cout << "It works, but from another thread\n"; }));
+
+    thread2 = rethreadme::Thread<std::function<void()>>();
+    thread2.queue(
+        std::function([]() { std::cout << "It works, but from thread created with move assignment operator\n"; }));
+
+    rethreadme::Thread<std::function<void()>> thread3;
+    thread3 = std::move(thread2);
+    thread3.queue(std::function([]() { std::cout << "It works, again in moved thread\n"; }));
 }
