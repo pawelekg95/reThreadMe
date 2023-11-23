@@ -14,7 +14,7 @@ if (USE_SAN)
     message("Sanitizers on")
 endif()
 
-project(genetic_algorithm LANGUAGES C CXX)
+project(rethreadme LANGUAGES C CXX)
 
 add_compile_options(-Wall -Wextra -Wpedantic -Werror $<$<COMPILE_LANGUAGE:CXX>:-std=c++2a>)
 
