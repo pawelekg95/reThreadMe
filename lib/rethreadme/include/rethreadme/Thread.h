@@ -39,7 +39,7 @@ public:
         }
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(1ms);
+            std::this_thread::sleep_for(m_timeout);
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -55,7 +55,7 @@ public:
         this->~Thread();
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(1ms);
+            std::this_thread::sleep_for(m_timeout);
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -147,7 +147,7 @@ private:
         while (parameters->running)
         {
             std::call_once(parameters->deinitFlag, [parameters]() { parameters->deinitSemaphore.release(); });
-            if (!parameters->functionsSemaphore.try_acquire_for(1ms))
+            if (!parameters->functionsSemaphore.try_acquire_for(m_timeout))
             {
                 continue;
             }
@@ -209,6 +209,7 @@ private:
 private:
     // Pointer to allow easy move semantics
     std::shared_ptr<Parameters> m_parameters{std::make_shared<Parameters>()};
+    std::chrono::milliseconds m_timeout{10ms};
 };
 
 } // namespace rethreadme
