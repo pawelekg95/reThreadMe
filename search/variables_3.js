@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['inexecution_0',['inExecution',['../structrethreadme_1_1Thread_1_1Parameters.html#a1ca8e4f8ff55a16651a7ae83b6fed021',1,'rethreadme::Thread::Parameters']]],
-  ['ismoveable_1',['isMoveable',['../structrethreadme_1_1Thread_1_1Parameters.html#a6f6dd3491d33d2d47f6972d80b83c166',1,'rethreadme::Thread::Parameters']]]
+  ['functions_0',['functions',['../structrethreadme_1_1Thread_1_1Parameters.html#a988e33a8af1bb4312aa9e3574bf34e43',1,'rethreadme::Thread::Parameters']]],
+  ['functionssemaphore_1',['functionsSemaphore',['../structrethreadme_1_1Thread_1_1Parameters.html#abf0dcbba2511c92d92eccfc599852b1f',1,'rethreadme::Thread::Parameters']]]
 ];
