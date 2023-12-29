@@ -209,7 +209,7 @@ private:
 private:
     // Pointer to allow easy move semantics
     std::shared_ptr<Parameters> m_parameters{std::make_shared<Parameters>()};
-    std::chrono::milliseconds m_timeout{10ms};
+    const std::chrono::milliseconds m_timeout{10ms};
 };
 
 } // namespace rethreadme
