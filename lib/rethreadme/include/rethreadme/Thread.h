@@ -15,6 +15,8 @@ using namespace std::chrono_literals;
 
 namespace rethreadme {
 
+const std::atomic<std::chrono::milliseconds> cTimeout{10ms};
+
 template <typename Function, typename... Args>
 class Thread
 {
@@ -39,7 +41,7 @@ public:
         }
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(m_timeout);
+            std::this_thread::sleep_for(cTimeout);
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -55,7 +57,7 @@ public:
         this->~Thread();
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(m_timeout);
+            std::this_thread::sleep_for(cTimeout);
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -147,7 +149,7 @@ private:
         while (parameters->running)
         {
             std::call_once(parameters->deinitFlag, [parameters]() { parameters->deinitSemaphore.release(); });
-            if (!parameters->functionsSemaphore.try_acquire_for(m_timeout))
+            if (!parameters->functionsSemaphore.try_acquire_for(cTimeout))
             {
                 continue;
             }
@@ -209,7 +211,6 @@ private:
 private:
     // Pointer to allow easy move semantics
     std::shared_ptr<Parameters> m_parameters{std::make_shared<Parameters>()};
-    const std::chrono::milliseconds m_timeout{10ms};
 };
 
 } // namespace rethreadme
