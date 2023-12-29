@@ -41,7 +41,7 @@ public:
         }
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(cTimeout);
+            std::this_thread::sleep_for(cTimeout.load());
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -57,7 +57,7 @@ public:
         this->~Thread();
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(cTimeout);
+            std::this_thread::sleep_for(cTimeout.load());
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -149,7 +149,7 @@ private:
         while (parameters->running)
         {
             std::call_once(parameters->deinitFlag, [parameters]() { parameters->deinitSemaphore.release(); });
-            if (!parameters->functionsSemaphore.try_acquire_for(cTimeout))
+            if (!parameters->functionsSemaphore.try_acquire_for(cTimeout.load()))
             {
                 continue;
             }
