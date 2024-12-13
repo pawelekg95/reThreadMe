@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
 
 namespace rethreadme {
 
-const std::atomic<std::chrono::milliseconds> cTimeout{10ms};
+const std::atomic<std::chrono::milliseconds> cTimeout{1000ms};
 
 template <typename Function, typename... Args>
 class Thread
@@ -41,7 +41,7 @@ public:
         }
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(cTimeout.load());
+            std::this_thread::sleep_for(5ms);
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
@@ -57,7 +57,7 @@ public:
         this->~Thread();
         while (!other.isMoveable())
         {
-            std::this_thread::sleep_for(cTimeout.load());
+            std::this_thread::sleep_for(5ms);
         }
         std::lock_guard lock(other.m_parameters->mtx);
         m_parameters = other.m_parameters;
