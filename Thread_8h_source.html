@@ -109,7 +109,7 @@ $(document).ready(function(){initNavTree('Thread_8h_source.html',''); initResiza
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno"><a class="line" href="namespacerethreadme.html">   16</a></span><span class="keyword">namespace </span><a class="code hl_namespace" href="namespacerethreadme.html">rethreadme</a> {</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="namespacerethreadme.html#ad675b812055a4bd8ece9dd8de4ce1e5f">   18</a></span><span class="keyword">const</span> std::atomic&lt;std::chrono::milliseconds&gt; <a class="code hl_variable" href="namespacerethreadme.html#ad675b812055a4bd8ece9dd8de4ce1e5f">cTimeout</a>{10ms};</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="namespacerethreadme.html#ad675b812055a4bd8ece9dd8de4ce1e5f">   18</a></span><span class="keyword">const</span> std::atomic&lt;std::chrono::milliseconds&gt; <a class="code hl_variable" href="namespacerethreadme.html#ad675b812055a4bd8ece9dd8de4ce1e5f">cTimeout</a>{1000ms};</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">template</span> &lt;<span class="keyword">typename</span> Function, <span class="keyword">typename</span>... Args&gt;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="classrethreadme_1_1Thread.html">   21</a></span><span class="keyword">class </span><a class="code hl_class" href="classrethreadme_1_1Thread.html">Thread</a></div>
@@ -135,7 +135,7 @@ $(document).ready(function(){initNavTree('Thread_8h_source.html',''); initResiza
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        }</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <span class="keywordflow">while</span> (!other.isMoveable())</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        {</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>            std::this_thread::sleep_for(<a class="code hl_variable" href="namespacerethreadme.html#ad675b812055a4bd8ece9dd8de4ce1e5f">cTimeout</a>.load());</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>            std::this_thread::sleep_for(5ms);</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        }</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        std::lock_guard lock(other.m_parameters-&gt;mtx);</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        <a class="code hl_variable" href="classrethreadme_1_1Thread.html#afd191991e01c52b98dd261317c7c2357">m_parameters</a> = other.m_parameters;</div>
@@ -151,7 +151,7 @@ $(document).ready(function(){initNavTree('Thread_8h_source.html',''); initResiza
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        this-&gt;<a class="code hl_function" href="classrethreadme_1_1Thread.html#a5f1fc924f39ad06bee109853f516d23a">~Thread</a>();</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <span class="keywordflow">while</span> (!other.isMoveable())</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        {</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            std::this_thread::sleep_for(<a class="code hl_variable" href="namespacerethreadme.html#ad675b812055a4bd8ece9dd8de4ce1e5f">cTimeout</a>.load());</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            std::this_thread::sleep_for(5ms);</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        }</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        std::lock_guard lock(other.m_parameters-&gt;mtx);</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <a class="code hl_variable" href="classrethreadme_1_1Thread.html#afd191991e01c52b98dd261317c7c2357">m_parameters</a> = other.m_parameters;</div>
